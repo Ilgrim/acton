@@ -270,3 +270,152 @@ class CmdAttack(Command):
         caller.location.msg_contents(message %
                                      (caller.key, "s", combat_score),
                                      exclude=caller)
+
+from evennia import create_object
+
+class CmdCreateNPC(Command):
+    """
+    Create a new NPC.
+
+    Usage:
+      +createnpc <name>
+
+    Creates a new, named NPC. The NPC will start with a Power of 1.
+    """
+    key = "+createnpc"
+    aliases = ["+createNPC"]
+    locks = "call:not perm(nonpcs)"
+    help_category = "mush"
+
+    def func(self):
+        "creates the object and names it"
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: +createnpc <name>")
+            return
+        if not caller.location:
+            # may not create NPC when OOC
+            caller.msg("You must have a location to create an NPC.")
+            return
+        # make name always start with capital letter
+        name = self.args.strip().capitalize()
+        # create npc in caller's location
+        npc = create_object("characters.Character",
+                key=name,
+                location=caller.location,
+                locks="edit:id(%i) and perm(Builders);call:false()" % caller.id)
+        # announce
+        message = "%s created the NPC '%s'."
+        caller.msg(message % ("You", name))
+        caller.location.msg_contents(message % (caller.key, name),
+                                                exclude=caller)
+
+class CmdEditNpc(Command):
+    """
+    Edit an existing NPC.
+
+    Usage:
+      +editnpc <name>[/<attribute> [= value]]
+
+    Examples:
+      +editnpc mynpc/power = 5
+      +editnpc mynpc/power    - displays power value
+      +editnpc mynpc          - shows all editable
+                                attributes and values
+
+    This command edits an existing NPC. You must have
+    permission to edit the NPC to use this.
+    """
+    key = "+editnpc"
+    aliases = ["+editNPC"]
+    locks = "cmd:not perm(nonpcs)"
+    help_category = "mush"
+
+    def parse(self):
+        "we need to do some parsing here"
+        args = self.args
+        propname, propval = None, None
+        if "=" in args:
+            args, propval = [part.strip() for part in args.rsplit("=", 1)]
+        if "/" in args:
+            args, propname = [part.strip() for part in args.rsplit("/", 1)]
+        # store, so we can access it below in func()
+        self.name = args
+        self.propname = propname
+        # a propval without a propname is meaningless
+        self.propval = propval if propname else None
+
+    def func(self):
+        "do the editing"
+        allowed_propnames = ("power", "attribute1", "attribute2")
+
+        caller = self.caller
+        if not self.args or not self.name:
+            caller.msg("Usage: +editnpc name[/propname][=propval]")
+            return
+        npc = caller.search(self.name)
+        if not npc:
+            return
+        if not npc.access(caller, "edit"):
+            caller.msg("You cannot change this NPC.")
+            return
+        if not self.propname:
+            # this means we just list the values
+            output = "Properties of %s:" % npc.key
+            for propname in allowed_propnames:
+                propvalue = npc.attributes.get(propname, default="N/A")
+                output += "\n %s = %s" % (propname, propvalue)
+            caller.msg(output)
+        elif self.propname not in allowed_propnames:
+            caller.msg("You may only change %s." %
+                        ", ".join(allowed_propnames))
+        elif self.propval:
+            # assigning a new propvalue
+            # in this example, the properties are all integers...
+            intpropval = int(self.propval)
+            npc.attributes.add(self.propname, intpropval)
+            caller.msg("Set %s's property '%s' to %s" %
+                        (npc.key, self.propname, self.propval))
+        else:
+            # propname set, but not propval - show current value
+            caller.msg("%s has property %s = %s" %
+                       (npc.key, self.propname,
+                       npc.attributes.get(self.propname, default="N/A")))
+
+class CmdNPC(Command):
+    """
+    Controls an NPC.
+
+    Usage:
+      +npc <name> = <command>
+
+    This causes the NPC to perform a command as itself. It will do so
+    with its own permissions and accesses.
+    """
+    key = "+npc"
+    locks = "call:not perm(nonpcs)"
+    help_category = "mush"
+
+    def parse(self):
+        "simple split of the = sign"
+        name, cmdname = None, None
+        if "=" in self.args:
+            name, cmdname = [part.strip()
+                             for part in self.args.rsplit("=", 1)]
+        self.name, self.cmdname = name, cmdname
+
+    def func(self):
+        "run the command"
+        caller = self.caller
+        if not self.cmdname:
+            caller.msg("Usage: +npc <name> = <command>")
+            return
+        npc = caller.search(self.name)
+        if not npc:
+            return
+        if not npc.access(caller, "edit"):
+            caller.msg("You may not order this NPC to do anything.")
+            return
+        # send the command order
+        npc.execute_cmd(self.cmdname, sessid=self.caller.sessid)
+        caller.msg("You told %s to do '%s'." % (npc.key, self.cmdname))
