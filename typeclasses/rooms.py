@@ -18,4 +18,14 @@ class Room(DefaultRoom):
     See examples/object.py for a list of
     properties and methods available on all Objects.
     """
-    pass
+
+from commands.default_cmdsets import ChargenCmdset
+
+class ChargenRoom(Room):
+    """
+    This room class is used by character-generation rooms. It makes
+    the ChargenCmdset available.
+    """
+    def at_object_creation(self):
+        "this is called only at first creation"
+        self.cmdset.add(ChargenCmdset, permanent=True)

@@ -182,3 +182,91 @@ class Command(BaseCommand):
 #            else:
 #                self.character = None
 #
+
+class CmdAbilities(Command):
+    """
+    List abilities.
+
+    Usage:
+      abilities
+
+    Displays a list of your current ability values.
+    """
+    key = "abilities"
+    aliases = ["abi"]
+    lock = "cmd:all()"
+    help_category = "General"
+
+    def func(self):
+        "implements the actual functionality"
+
+        str, agi, mag = self.caller.get_abilities()
+        string = "STR: %s, AGI: %s, MAG: %s" % (str, agi, mag)
+        self.caller.msg(string)
+
+from evennia import Command
+
+class CmdSetPower(Command):
+    """
+    Set the power of a Character.
+
+    Usage:
+      +setpower <1-10>
+
+    This sets the power of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "+setpower"
+    help_category = "mush"
+
+    def func(self):
+        "this performs the actual command"
+        errmsg = "You must supply a number betwmeen 1 and 10."
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            power = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (1 <= power <= 10):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.power = power
+        self.caller.msg("Your Power was set to %i." % power)
+
+import random
+
+class CmdAttack(Command):
+    """
+    Issues an attack.
+
+    Usage:
+      +attack
+
+    This will calculate a new combat score based on your Power.
+    Your combat score is visible to everyone in the same location.
+    """
+    key = "+attack"
+    help_category = "mush"
+
+    def func(self):
+        "calculate the random score between 1-10*Power"
+        caller = self.caller
+        power = caller.db.power
+        if not power:
+            # this can happen if caller is not of
+            # our custom Character typeclass
+            power = 1
+        combat_score = random.randint(1, 10 * power)
+        caller.db.combat_score = combat_score
+
+        # announce
+        message = "%s +attack%s with a combat score of %s!"
+        caller.msg(message % ("You", "", combat_score))
+        caller.location.msg_contents(message %
+                                     (caller.key, "s", combat_score),
+                                     exclude=caller)
