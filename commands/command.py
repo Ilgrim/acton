@@ -419,3 +419,32 @@ class CmdNPC(Command):
         # send the command order
         npc.execute_cmd(self.cmdname, sessid=self.caller.sessid)
         caller.msg("You told %s to do '%s'." % (npc.key, self.cmdname))
+
+class CmdConfigColor(Command):
+    """
+    Configures your color
+
+    Usage:
+      @togglecolor on|off
+
+    This turns ansii-colors on/off.
+    Default is on.
+    """
+
+    key = "@togglecolor"
+    aliases = ["@setcolor"]
+
+    def func(self):
+        "Implements the command"
+
+        print str(self.args) in (" on", " off")
+
+        if not self.args or self.args not in [" on", " off"]:
+            self.caller.msg("Usage: @setcolor on|off")
+            return
+        if self.args == " on":
+            self.caller.db.config_color = True
+            self.caller.msg("Color was turned |won|W.")
+        else:
+            self.caller.db.config_color = False
+            self.caller.msg("Color was turned off.")

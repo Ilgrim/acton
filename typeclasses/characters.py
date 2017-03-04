@@ -8,6 +8,7 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
+from evennia.utils.ansi import parse_ansi
 
 class Character(DefaultCharacter):
     """
@@ -36,6 +37,8 @@ class Character(DefaultCharacter):
         Character and is usually set during some character
         generation step instead.
         """
+        # set a color config value
+        self.db.config_color = True
         # set persistent attributes
         self.db.strength = 5
         self.db.agility = 4
@@ -66,3 +69,13 @@ class Character(DefaultCharacter):
             # text is only one line; add score to end
             text += cscore
         return text
+
+    def msg(self, text=None, from_obj=None, session=None, options=None, **kwargs):
+        "our custom msg()"
+        if self.db.config_color is not None: # this would mean it was not set
+            if not self.db.config_color:
+                # remove the ANSI from the text
+                text = parse_ansi(text, strip_ansi=True, xterm256=False,
+                                  mxp=False)
+        super(Character, self).msg(text=text, from_obj=from_obj,
+                                             session=session, **kwargs)

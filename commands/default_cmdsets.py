@@ -39,6 +39,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdCreateNPC())
         self.add(command.CmdEditNpc())
         self.add(command.CmdNPC())
+        self.add(command.CmdConfigColor())
 
 class PlayerCmdSet(default_cmds.PlayerCmdSet):
     """
