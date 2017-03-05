@@ -8,7 +8,7 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
-from evennia.utils.ansi import parse_ansi
+from evennia.utils import ansi
 
 class Character(DefaultCharacter):
     """
@@ -86,7 +86,6 @@ class Character(DefaultCharacter):
         if self.db.config_color is not None: # this would mean it was not set
             if not self.db.config_color:
                 # remove the ANSI from the text
-                text = parse_ansi(text, strip_ansi=True, xterm256=False,
-                                  mxp=False)
+                text = ansi.strip_ansi(text)
         super(Character, self).msg(text=text, from_obj=from_obj,
                                              session=session, **kwargs)
