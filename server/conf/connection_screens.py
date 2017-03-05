@@ -23,11 +23,15 @@ CONNECTION_SCREEN = """
  Welcome to |g{}|n, version {}!
 
  If you have an existing account, connect to it by typing:
-      |wconnect <username> <password>|n
+     |w connect <username> <password> |n
  If you need to create an account, type (without the <>'s):
-      |wcreate <username> <password>|n
+     |w create <username> <password> |n
 
  If you have spaces in your username, enclose it in quotes.
- Enter |whelp|n for more info. |wlook|n will re-show this screen.
+ Enter|w help |nfor more info.|w look |nwill re-show this screen.
+
+ Does this all look weird to you, with strange symbols?
+ Once you log into your account, try running
+ `@togglecolor off` to fix it.
 |b==============================================================|n""" \
     .format(settings.SERVERNAME, utils.get_evennia_version())

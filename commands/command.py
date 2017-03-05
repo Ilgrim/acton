@@ -200,43 +200,93 @@ class CmdAbilities(Command):
     def func(self):
         "implements the actual functionality"
 
-        str, agi, mag = self.caller.get_abilities()
-        string = "STR: %s, AGI: %s, MAG: %s" % (str, agi, mag)
+        cha, con, dex, int, str, wis = self.caller.get_abilities()
+        string = ("CHA: %s\nCON: %s\nDEX: %s\nINT: %s\nSTR: %s\nWIS: %s" %
+                 (cha,con, dex, int, str, wis))
         self.caller.msg(string)
 
 from evennia import Command
 
-class CmdSetPower(Command):
+class CmdEditCharacter(Command):
     """
-    Set the power of a Character.
+    Set a trait of the character.
 
     Usage:
-      +setpower <1-10>
+      character <field> = <value>
 
-    This sets the power of the current character. This can only be
-    used during character generation.
+    Example:
+      character strength = 10
+
+    Allowed fields:
+      |gcharisma|W, |gconstitution|W, |gdexterity|W,
+      |gintelligence|W, |gstrength|W, |gwisdom|W
+
+    This sets different abilities of the current character. This can only be
+    used during character generation. You have a total of |w64|W ability points
+    to assign. Each field must have at least |w8|W ability points in it, and
+    you may not raise an ability higher than |w14|W(not right now, at least!).
     """
 
-    key = "+setpower"
-    help_category = "mush"
+    key = "character"
+    help_category = "general"
+
+    def parse(self):
+        "simple split of the = sign"
+        field, value = None, None
+        if "=" in self.args:
+            self.field, self.value = [part.strip()
+                             for part in self.args.rsplit("=", 1)]
 
     def func(self):
         "this performs the actual command"
-        errmsg = "You must supply a number betwmeen 1 and 10."
-        if not self.args:
-            self.caller.msg(errmsg)
+
+        # the list of allowed fields
+        allowed = ["charisma", "constitution", "dexterity", "intelligence",
+                   "strength", "wisdom"]
+        # make sure the variables are not None
+        if not self.field or not self.value:
+            self.caller.msg("Usage: character <field> = <value>")
             return
-        try:
-            power = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
+        # make sure the value can be converted to an int
+        if not isinstance(int(self.value), int):
+            self.caller.msg("The value must be a valid number.")
             return
-        if not (1 <= power <= 10):
-            self.caller.msg(errmsg)
+        # convert the value to an int
+        self.value = int(self.value)
+        # make sure the field is allowed
+        if not self.field in allowed:
+            self.caller.msg("The allowed fields are: |g%s|W"
+                            % "|W, |g".join(allowed))
             return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.power = power
-        self.caller.msg("Your Power was set to %i." % power)
+        # make sure the value is within range
+        if self.value < 8 or self.value > 14:
+            self.caller.msg("Abilities must have a value greater than or equal"
+                            " to |w8|W and less than or equal to |w14|W!")
+            return
+        total, new_total = 0, 0
+        # get the total of all the abilities combined
+        for abil in allowed:
+            total += int(self.caller.attributes.get(abil))
+        # get what the new total would be if we added this new value
+        new_total = (total - int(self.caller.attributes.get(self.field))
+            + self.value)
+        # make sure the new total does not exceed the maximum of 64
+        if new_total > 64:
+            self.caller.msg("You have exceeded your maximum ability points!"
+                            " You only have |w%s|W left. Try reducing another"
+                            " ability score first." % (64 - total))
+            return
+        # assuming everything is fine, set the new value to the field
+        self.caller.attributes.add(self.field, self.value)
+        self.caller.msg("Set |g%s|W to |w%s|W. You have |w%s|W ability points"
+        " remaining." % (self.field, self.value, 64 - new_total))
+        # if they have used up all of their points, let them know
+        if new_total == 64:
+            self.caller.msg("You have used up all of your ability points!"
+                            " Either type `|wfinish|W` to exit character"
+                            " creation, or lower one of your abilities"
+                            " to customize them more.")
+
 
 import random
 
@@ -436,9 +486,6 @@ class CmdConfigColor(Command):
 
     def func(self):
         "Implements the command"
-
-        print str(self.args) in (" on", " off")
-
         if not self.args or self.args not in [" on", " off"]:
             self.caller.msg("Usage: @setcolor on|off")
             return

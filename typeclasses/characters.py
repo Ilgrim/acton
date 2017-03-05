@@ -40,9 +40,19 @@ class Character(DefaultCharacter):
         # set a color config value
         self.db.config_color = True
         # set persistent attributes
-        self.db.strength = 5
-        self.db.agility = 4
-        self.db.magic = 2
+
+        self.db.charisma = 8
+        self.db.constitution = 8
+        self.db.dexterity = 8
+        self.db.intelligence = 8
+        self.db.strength = 8
+        self.db.wisdom = 8
+
+        self.db.level = 0
+        self.db.experience = 0
+
+        self.db.levels = [20, 100, 500, 1000, 2000, 5000, 10000]
+
 
         self.db.power = 1
         self.db.combat_score = 1
@@ -52,7 +62,8 @@ class Character(DefaultCharacter):
         Simple access method to return ability
         scores as a tuple (str,agi,mag)
         """
-        return self.db.strength, self.db.agility, self.db.magic
+        return (self.db.charisma, self.db.constitution, self.db.dexterity,
+               self.db.intelligence, self.db.strength, self.db.wisdom)
 
     def return_appearance(self, looker):
         """

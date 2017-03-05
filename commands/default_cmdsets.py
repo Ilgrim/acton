@@ -104,4 +104,4 @@ class ChargenCmdset(CmdSet):
     key = "Chargen"
     def at_cmdset_creation(self):
         "This is called at initialization."
-        self.add(command.CmdSetPower())
+        self.add(command.CmdEditCharacter())
