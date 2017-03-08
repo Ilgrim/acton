@@ -10,6 +10,7 @@ creation commands.
 from evennia import DefaultCharacter
 from evennia.utils import ansi
 
+
 class Character(DefaultCharacter):
     """
     The Character defaults to reimplementing some of base Object's hook methods with the
@@ -53,8 +54,6 @@ class Character(DefaultCharacter):
 
         self.db.levels = [20, 100, 500, 1000, 2000, 5000, 10000]
 
-
-        self.db.power = 1
         self.db.combat_score = 1
 
     def get_abilities(self):
@@ -63,7 +62,7 @@ class Character(DefaultCharacter):
         scores as a tuple (str,agi,mag)
         """
         return (self.db.charisma, self.db.constitution, self.db.dexterity,
-               self.db.intelligence, self.db.strength, self.db.wisdom)
+                self.db.intelligence, self.db.strength, self.db.wisdom)
 
     def return_appearance(self, looker):
         """
@@ -81,11 +80,11 @@ class Character(DefaultCharacter):
             text += cscore
         return text
 
-    def msg(self, text=None, from_obj=None, session=None, options=None, **kwargs):
-        "our custom msg()"
-        if self.db.config_color is not None: # this would mean it was not set
+    def msg(self, text=None, from_obj=None, session=None, **kwargs):
+        """our custom msg()"""
+        if self.db.config_color is not None:  # this would mean it was not set
             if not self.db.config_color:
-                # remove the ANSI from the text
-                text = ansi.strip_ansi(text)
-        super(Character, self).msg(text=text, from_obj=from_obj,
-                                             session=session, **kwargs)
+                super(Character, self).msg(text, from_obj=None, session=None, options={"nocolor": True}, **kwargs)
+            else:
+                super(Character, self).msg(text, from_obj=None, session=None, **kwargs)
+
