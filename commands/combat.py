@@ -215,8 +215,8 @@ class CmdEndAll(Command):
 
     def func(self):
         """Handle command."""
-        self.ndb.combat_handler.msg_all("Combat has ended")
-        self.ndb.combat_handler.stop()
+        self.caller.ndb.combat_handler.msg_all("Combat has ended")
+        self.caller.ndb.combat_handler.stop()
 
 
 from evennia import CmdSet
