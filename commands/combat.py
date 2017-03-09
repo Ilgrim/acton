@@ -203,6 +203,20 @@ class CmdAttack(Command):
 
 
 
+class CmdEndAll(Command):
+    """
+    Ends the battle instantly.
+
+    Usage:
+      endbattle
+    """
+    key = "endbattle"
+
+    def func(self):
+        """Handle command."""
+        self.ndb.combat_handler.msg_all("Combat has ended")
+        self.ndb.combat_handler.stop()
+
 
 from evennia import CmdSet
 from evennia import default_cmds
