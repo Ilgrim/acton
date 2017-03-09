@@ -235,5 +235,6 @@ class CombatCmdSet(CmdSet):
         self.add(CmdFeint())
         self.add(CmdDefend())
         self.add(CmdDisengage())
+        self.add(CmdEndAll())
         self.add(default_cmds.CmdPose())
         self.add(default_cmds.CmdSay())
