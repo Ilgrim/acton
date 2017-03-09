@@ -211,6 +211,7 @@ class CmdEndAll(Command):
       endbattle
     """
     key = "endbattle"
+    lock = "cmd:perm(Wizards)"
 
     def func(self):
         """Handle command."""

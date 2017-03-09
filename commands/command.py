@@ -194,7 +194,7 @@ class CmdAbilities(Command):
     """
     key = "abilities"
     aliases = ["abi"]
-    lock = "cmd:perm(Wizards)"
+    lock = "cmd:all()"
     help_category = "General"
 
     def func(self):
