@@ -58,17 +58,17 @@ def resolve_combat(combat_handler, actiondict):
                         else:
                             msg = "%s attepmts to feint %s, to no avail."
                             messages.append(msg % (char, tchar))
-                    elif action == "defend":
-                        msg = "%s defends."
-                        messages.append(msg % char)
-                    # This goes here so that it will run regardless of if a target is set - which there shouldn't be.
-                    elif action == "flee":
-                        if char in flee:
-                            flee[char] += 1
-                        else:
-                            flee[char] = 1
-                        msg = "%s tries to disengage (two subsequent turns needed)"
-                        messages.append(msg % char)
+            # This goes here so that it will run regardless of if a target is set - which there shouldn't be.
+            elif action == "defend":
+                msg = "%s defends."
+                messages.append(msg % char)
+            elif action == "flee":
+                if char in flee:
+                    flee[char] += 1
+                else:
+                    flee[char] = 1
+                msg = "%s tries to disengage (two subsequent turns needed)"
+                messages.append(msg % char)
 
         # echo results of each subturn
         combat_handler.msg_all("\n".join(messages))
