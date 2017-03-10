@@ -35,36 +35,36 @@ def resolve_combat(combat_handler, actiondict):
                     else:
                         msg = "%s hits %s, bypassing their %s!"
                         messages.append(msg % (char, tchar, taction))
-            elif action == "parry":
-                if taction == "hit":
-                    msg = "%s parries the attack by %s."
-                    messages.append(msg % (char, tchar))
-                elif taction == "feint":
-                    msg = "%s tries to parry, but %s feints and hits!"
-                    messages.append(msg % (char, tchar))
-                else:
-                    msg = "%s parries to no avail."
+                elif action == "parry":
+                    if taction == "hit":
+                        msg = "%s parries the attack by %s."
+                        messages.append(msg % (char, tchar))
+                    elif taction == "feint":
+                        msg = "%s tries to parry, but %s feints and hits!"
+                        messages.append(msg % (char, tchar))
+                    else:
+                        msg = "%s parries to no avail."
+                        messages.append(msg % char)
+                elif action == "feint":
+                    if taction == "parry":
+                        msg = "%s feints past %s's parry, landing a hit!"
+                        messages.append(msg % (char, tchar))
+                    elif taction == "hit":
+                        msg = "%s feints but is defeated by %s hit!"
+                        messages.append(msg % (char, tchar))
+                    else:
+                        msg = "%s feints to no avail."
+                        messages.append(msg % char)
+                elif action == "defend":
+                    msg = "%s defends."
                     messages.append(msg % char)
-            elif action == "feint":
-                if taction == "parry":
-                    msg = "%s feints past %s's parry, landing a hit!"
-                    messages.append(msg % (char, tchar))
-                elif taction == "hit":
-                    msg = "%s feints but is defeated by %s hit!"
-                    messages.append(msg % (char, tchar))
-                else:
-                    msg = "%s feints to no avail."
+                elif action == "flee":
+                    if char in flee:
+                        flee[char] += 1
+                    else:
+                        flee[char] = 1
+                    msg = "%s tries to disengage (two subsequent turns needed)"
                     messages.append(msg % char)
-            elif action == "defend":
-                msg = "%s defends."
-                messages.append(msg % char)
-            elif action == "flee":
-                if char in flee:
-                    flee[char] += 1
-                else:
-                    flee[char] = 1
-                msg = "%s tries to disengage (two subsequent turns needed)"
-                messages.append(msg % char)
 
             # echo results of each subturn
         combat_handler.msg_all("\n".join(messages))
