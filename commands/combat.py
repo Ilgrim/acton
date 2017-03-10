@@ -10,7 +10,9 @@ class CmdHit(Command):
     Usage:
       hit <target>
 
-    Strikes the given enemy with your current weapon.
+    Strikes the given enemy with your current weapon. Will beat a feint
+    or a disengage, but has a 50% chance of failing against a defend and
+    will always be beaten by a parry.
     """
     key = "hit"
     aliases = ["strike", "slash"]
@@ -43,7 +45,8 @@ class CmdParry(Command):
     Usage:
       parry <target>
 
-    Parries the given enemy with your current weapon.
+    Parries the given enemy with your current weapon. The parry will defeat
+    a hit, but can be beaten by a feint.
     """
     key = "parry"
     help_category = "combat"
@@ -75,7 +78,9 @@ class CmdFeint(Command):
     Usage:
       feint <target>
 
-    Feints the given enemy with your current weapon.
+    Feints the given enemy with your current weapon. Will defeat a parry
+    and then be translated as a hit against your target, but will be
+    defeated by a hit.
     """
     key = "feint"
     help_category = "combat"
@@ -107,7 +112,8 @@ class CmdDefend(Command):
     Usage:
       defend <target>
 
-    Defends against the given enemy with your current weapon.
+    Attempts to defend against the given enemy. This has a
+    50% chance of blocking a hit.
     """
     key = "defend"
     help_category = "combat"
@@ -137,24 +143,20 @@ class CmdDisengage(Command):
     Disengage an enemy.
 
     Usage:
-      disengage <target>
+      disengage
 
-    Disengages the given enemy.
+    Attempts to disengage from battle. Must succeed two times in a row,
+    but will be interrupted by a hit.
     """
     key = "disengage"
+    aliases = ["flee"]
     help_category = "combat"
 
     def func(self):
         """Implements the command"""
-        if not self.args:
-            self.caller.msg("Usage: disengage <target>")
-            return
-        target = self.caller.search(self.args)
-        if not target:
-            return
         ok = self.caller.ndb.combat_handler.add_action("flee",
                                                        self.caller,
-                                                       target)
+                                                       None)
         if ok:
             self.caller.msg("You add 'disengage' to the combat queue")
         else:
