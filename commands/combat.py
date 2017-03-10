@@ -152,7 +152,7 @@ class CmdDisengage(Command):
         target = self.caller.search(self.args)
         if not target:
             return
-        ok = self.caller.ndb.combat_handler.add_action("disengage",
+        ok = self.caller.ndb.combat_handler.add_action("flee",
                                                        self.caller,
                                                        target)
         if ok:
