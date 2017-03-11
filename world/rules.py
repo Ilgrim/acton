@@ -16,49 +16,49 @@ def resolve_combat(combat_handler, actiondict):
     for isub in range(2):
         # loop over sub-turns
         messages = []
-        exchanges = {}
+        #exchanges = {}
         for subturn in (sub[isub] for sub in actiondict.values()):
             # for each character, resolve the sub-turn
             action, char, target = subturn
             if target:
                 taction, tchar, ttarget = actiondict[target.id][isub]
-                exchanges[char] = tchar
-                if not exchanges[tchar] == char:
-                    if action == "hit":
-                        if taction == "parry" and ttarget == char:
-                            msg = "|R%s|W tries to hit |G%s|W, but |G%s|W parries the attack!"
-                            messages.append(msg % (char, tchar, tchar))
-                        elif taction == "defend" and random < 0.5:
-                            msg = "|G%s|W defends against the attack by |R%s|W."
-                            messages.append(msg % (tchar, char))
-                        elif taction == "flee":
-                            msg = "|G%s|W stops |R%s|W from disengaging, with a hit!"
-                            flee[tchar] = -2
-                            messages.append(msg % (char, tchar))
-                        else:
-                            msg = "|G%s|W hits |R%s|W, bypassing their %s!"
-                            messages.append(msg % (char, tchar, taction))
-                    elif action == "parry":
-                        if taction == "hit":
-                            msg = "|G%s|W parries the attack by |R%s|W."
-                            messages.append(msg % (char, tchar))
-                        elif taction == "feint":
-                            msg = "|R%s|W tries to parry, but |G%s|W feints and hits!"
-                            messages.append(msg % (char, tchar))
-                        else:
-                            msg = "|R%s|W attempts to parry |G%s|W, to no avail."
-                            messages.append(msg % (char, tchar))
-                    elif action == "feint":
-                        if taction == "parry":
-                            msg = "|G%s|W feints past |R%s|W's parry, landing a hit!"
-                            messages.append(msg % (char, tchar))
-                        elif taction == "hit":
-                            msg = "|R%s|W feints but is defeated by |G%s|W hit!"
-                            messages.append(msg % (char, tchar))
-                        else:
-                            msg = "|R%s|W attempts to feint |G%s|W, to no avail."
-                            messages.append(msg % (char, tchar))
-            # This goes here so that it will run regardless of if a target is set - which there shouldn't be.
+                #exchanges[char] = tchar
+                #if not exchanges[tchar] == char:
+                if action == "hit":
+                    if taction == "parry" and ttarget == char:
+                        msg = "|R%s|W tries to hit |G%s|W, but |G%s|W parries the attack!"
+                        messages.append(msg % (char, tchar, tchar))
+                    elif taction == "defend" and random < 0.5:
+                        msg = "|G%s|W defends against the attack by |R%s|W."
+                        messages.append(msg % (tchar, char))
+                    elif taction == "flee":
+                        msg = "|G%s|W stops |R%s|W from disengaging, with a hit!"
+                        flee[tchar] = -2
+                        messages.append(msg % (char, tchar))
+                    else:
+                        msg = "|G%s|W hits |R%s|W, bypassing their %s!"
+                        messages.append(msg % (char, tchar, taction))
+                elif action == "parry":
+                    if taction == "hit":
+                        msg = "|G%s|W parries the attack by |R%s|W."
+                        messages.append(msg % (char, tchar))
+                    elif taction == "feint":
+                        msg = "|R%s|W tries to parry, but |G%s|W feints and hits!"
+                        messages.append(msg % (char, tchar))
+                    else:
+                        msg = "|R%s|W attempts to parry |G%s|W, to no avail."
+                        messages.append(msg % (char, tchar))
+                elif action == "feint":
+                    if taction == "parry":
+                        msg = "|G%s|W feints past |R%s|W's parry, landing a hit!"
+                        messages.append(msg % (char, tchar))
+                    elif taction == "hit":
+                        msg = "|R%s|W feints but is defeated by |G%s|W hit!"
+                        messages.append(msg % (char, tchar))
+                    else:
+                        msg = "|R%s|W attempts to feint |G%s|W, to no avail."
+                        messages.append(msg % (char, tchar))
+            # This goes back here so that it will run regardless of if a target is set - which there shouldn't be.
             elif action == "defend":
                 msg = "|w%s|W defends."
                 messages.append(msg % char)
